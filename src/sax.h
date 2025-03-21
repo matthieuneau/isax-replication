@@ -29,3 +29,15 @@ typedef struct
     SaxPair first;
     SaxPair second;
 } SaxPairPair;
+
+void initializeSaxBreakpoint();
+
+SaxPairPair promoteCardinality(SaxPair symbol1, SaxPair symbol2);
+
+double saxDistance(SaxPair symbol1, SaxPair symbol2);
+
+void z_normalize(TimeSeries *ts);
+
+TimeSeries compute_PAA(TimeSeries *ts, short word_length);
+
+SaxRepresentation paa_to_symbols(TimeSeries *ts, short cardinality);
