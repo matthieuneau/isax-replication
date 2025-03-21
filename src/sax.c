@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-void initializeSaxBreakpoint()
+void init_breakpoint()
 {
     for (int i = 0; i < MAX_CARDINALITY - 1; i++)
     {
@@ -15,7 +15,7 @@ void initializeSaxBreakpoint()
     }
 }
 
-SaxPairPair promoteCardinality(SaxPair symbol1, SaxPair symbol2)
+SaxPairPair promote_cardinality(SaxPair symbol1, SaxPair symbol2)
 {
     if (symbol1.cardinality == symbol2.cardinality)
     {
@@ -23,21 +23,25 @@ SaxPairPair promoteCardinality(SaxPair symbol1, SaxPair symbol2)
     }
     else
     {
-        if (symbol1.cardinality < symbol2.cardinality)
+        // ensure that symbol2 has largest cardinality
+        if (symbol1.cardinality > symbol2.cardinality)
         {
-            if (symbol2.value >> (symbol2.cardinality - symbol1.cardinality) == symbol1.value)
-            {
-                return (SaxPairPair){symbol2, symbol2};
-            }
+            SaxPair temp = symbol1;
+            symbol1 = symbol2;
+            symbol2 = temp;
+        }
+        if (symbol2.value >> (int)log((double)(symbol2.cardinality - symbol1.cardinality)) == symbol1.value)
+        {
+            return (SaxPairPair){symbol2, symbol2};
         }
         else
         {
-            if (symbol2.value >> (symbol2.cardinality - symbol1.cardinality) > symbol1.value)
+            if (symbol2.value >> (int)log((double)(symbol2.cardinality - symbol1.cardinality)) > symbol1.value)
             {
                 while (symbol1.cardinality < symbol2.cardinality)
                 {
                     symbol1.value = (symbol1.value << 1) + 1;
-                    symbol1.cardinality++;
+                    symbol1.cardinality *= 2;
                 }
             }
             else
@@ -45,7 +49,7 @@ SaxPairPair promoteCardinality(SaxPair symbol1, SaxPair symbol2)
                 while (symbol1.cardinality < symbol2.cardinality)
                 {
                     symbol1.value = symbol1.value << 1;
-                    symbol1.cardinality++;
+                    symbol1.cardinality *= 2;
                 }
             }
         }
@@ -53,11 +57,14 @@ SaxPairPair promoteCardinality(SaxPair symbol1, SaxPair symbol2)
     }
 }
 
-double saxDistance(SaxPair symbol1, SaxPair symbol2)
+double sax_pair_distance(SaxPair symbol1, SaxPair symbol2)
 {
     // start by casting the pair with lowest cardinality to the highest cardinality
-    short cardinality = symbol1.cardinality > symbol2.cardinality ? symbol1.cardinality : symbol2.cardinality;
-    // TODO: Implement
+    SaxPairPair promoted = promote_cardinality(symbol1, symbol2);
+    uint8_t cardinality = promoted.first.cardinality;
+
+    symbol1 = promoted.first;
+    symbol2 = promoted.second;
 
     if (abs(symbol1.value - symbol2.value) <= 1)
         return 0;
@@ -100,7 +107,7 @@ void z_normalize(TimeSeries *ts)
 }
 
 // TODO: fix behavior for when n / w is not an integer. last
-TimeSeries compute_PAA(TimeSeries *ts, short word_length)
+TimeSeries compute_paa(TimeSeries *ts, short word_length)
 {
     // TODO : Add a constructor to be able to initialize only with length
     TimeSeries ts_PAA = {.length = ts->length / word_length};
@@ -139,16 +146,16 @@ SaxRepresentation paa_to_symbols(TimeSeries *ts, short cardinality)
 //     float min_dist = 0;
 //     for (int i = 0; i < sax1->length; i++)
 //     {
-//         // min_dist += saxDistance()
+//         // min_dist += sax_pair_distance()
 //     }
 // }
 
 // int main()
 // {
 //     TimeSeries ts1 = {{-4, 0.5, -0.66, 0.4, 0.3, 0.0, 8}, 7};
-//     initializeSaxBreakpoint();
+//     init_breakpoint();
 //     // z_normalize(&ts1);
-//     // TimeSeries ts1_PAA = compute_PAA(&ts1, 2);
+//     // TimeSeries ts1_PAA = compute_paa(&ts1, 2);
 //     SaxRepresentation ts1_symbols = paa_to_symbols(&ts1, 8);
 //     printf("%u\n", ts1_symbols.data[0].value);
 //     printf("%u\n", ts1_symbols.data[1].value);

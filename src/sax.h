@@ -5,39 +5,39 @@
 
 double saxBreakpoint[MAX_CARDINALITY - 1][MAX_CARDINALITY];
 
-typedef struct
+typedef struct TimeSeries
 {
     double data[MAX_LENGTH];
     int length;
 
 } TimeSeries;
 
-typedef struct
+typedef struct SaxPair
 {
     uint8_t value;
     uint8_t cardinality;
 } SaxPair;
 
-typedef struct
+typedef struct SaxRepresentation
 {
     SaxPair data[MAX_LENGTH];
     int length;
 } SaxRepresentation;
 
-typedef struct
+typedef struct SaxPairPair
 {
     SaxPair first;
     SaxPair second;
 } SaxPairPair;
 
-void initializeSaxBreakpoint();
+void init_breakpoint();
 
-SaxPairPair promoteCardinality(SaxPair symbol1, SaxPair symbol2);
+SaxPairPair promote_cardinality(SaxPair symbol1, SaxPair symbol2);
 
-double saxDistance(SaxPair symbol1, SaxPair symbol2);
+double sax_pair_distance(SaxPair symbol1, SaxPair symbol2);
 
 void z_normalize(TimeSeries *ts);
 
-TimeSeries compute_PAA(TimeSeries *ts, short word_length);
+TimeSeries compute_paa(TimeSeries *ts, short word_length);
 
 SaxRepresentation paa_to_symbols(TimeSeries *ts, short cardinality);
